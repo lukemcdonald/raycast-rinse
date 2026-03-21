@@ -2,6 +2,7 @@
 const BOX_DRAWING_RE = /[\u2500-\u257F]/g;
 
 // ANSI escape sequences (colors, cursor movement, erase, etc.)
+// eslint-disable-next-line no-control-regex
 const ANSI_ESCAPE_RE = /\x1B\[[0-9;?]*[A-Za-z]|\x1B[()][AB012]|\x1B[=>]|\x1B[78]/g;
 
 // Spinner / progress characters (Braille + common spinner frames)
@@ -20,8 +21,13 @@ const LIST_MARKER_RE = /^(\s*[-*>]|\s*\d+\.)\s/;
 const LEADING_PIPE_RE = /^\s*[│|]\s*/;
 const TRAILING_PIPE_RE = /[\s│|]+$/;
 
+// Indented non-list line (signals a code block that should not be joined)
+const INDENTED_LINE_RE = /^\s/;
+
 export function cleanText(input: string): string {
-  if (!input.trim()) return input;
+  if (!input.trim()) {
+    return input
+  };
 
   let text = input;
 
@@ -33,21 +39,24 @@ export function cleanText(input: string): string {
   const cleaned: string[] = [];
 
   for (const rawLine of lines) {
-    const line = rawLine.replace(LEADING_PIPE_RE, "").replace(TRAILING_PIPE_RE, "");
-    if (DECORATION_LINE_RE.test(line)) continue;
+    let line = rawLine;
+
+    line = line.replace(LEADING_PIPE_RE, "");
+    line = line.replace(TRAILING_PIPE_RE, "");
+
+    if (DECORATION_LINE_RE.test(line)) {
+      continue;
+    }
+
     cleaned.push(line);
   }
 
-  // Second pass: rejoin lines that were soft-wrapped (e.g. by Claude Code at ~80 chars).
-  // A line is joined to the next when:
-  //   - neither line is blank
-  //   - the current line does not end with sentence-ending punctuation
-  //   - the next line does not start with a list marker
   const joined: string[] = [];
+
   for (let i = 0; i < cleaned.length; i++) {
     const current = cleaned[i];
     const next = cleaned[i + 1];
-    const isIndentedCode = /^\s/.test(current) && !LIST_MARKER_RE.test(current);
+    const isIndentedCode = INDENTED_LINE_RE.test(current) && !LIST_MARKER_RE.test(current);
 
     const canJoin =
       current !== "" &&
@@ -72,19 +81,27 @@ export function cleanText(input: string): string {
 }
 
 export interface CleanResult {
-  original: string;
-  cleaned: string;
   changed: boolean;
+  cleaned: string;
+  cleanedLineCount: number;
+  original: string;
+  originalLineCount: number;
   reductionPercent: number;
 }
 
 export function cleanWithStats(input: string): CleanResult {
   const cleaned = cleanText(input);
   const changed = cleaned !== input;
-  const reductionPercent =
-    input.length > 0
-      ? Math.round(((input.length - cleaned.length) / input.length) * 100)
-      : 0;
+  const reductionPercent = input.length > 0 ? Math.round(((input.length - cleaned.length) / input.length) * 100) : 0;
+  const originalLineCount = input.split("\n").length;
+  const cleanedLineCount = cleaned.split("\n").length;
 
-  return { original: input, cleaned, changed, reductionPercent };
+  return {
+    changed,
+    cleaned,
+    cleanedLineCount,
+    original: input,
+    originalLineCount,
+    reductionPercent
+  };
 }

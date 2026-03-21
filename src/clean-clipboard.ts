@@ -18,9 +18,7 @@ export default async function main() {
 
   await Clipboard.copy(result.cleaned);
 
-  const hudText = result.reductionPercent > 0
-    ? `✓ Bougie! (${result.reductionPercent}% rinsed)`
-    : `✓ Bougie!`;
+  const hudText = result.reductionPercent > 0 ? `✓ Bougie! (${result.reductionPercent}% rinsed)` : `✓ Bougie!`;
 
   await showHUD(hudText);
 }

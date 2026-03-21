@@ -1,18 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { cleanWithStats } from "./utils/cleaner";
 import type { CleanResult } from "./utils/cleaner";
-import {
-  Action,
-  ActionPanel,
-  Clipboard,
-  Color,
-  Detail,
-  Icon,
-  showToast,
-  Toast,
-  useNavigation,
-} from "@raycast/api";
+import { Action, ActionPanel, Clipboard, Color, Detail, Icon, showToast, Toast, useNavigation } from "@raycast/api";
 
 export default function CleanAndReview() {
   const [result, setResult] = useState<CleanResult | null>(null);
@@ -30,8 +19,8 @@ export default function CleanAndReview() {
 
   async function copyAndClose() {
     if (!result) {
-      return
-    };
+      return;
+    }
     await Clipboard.copy(result.cleaned);
     await showToast({
       style: Toast.Style.Success,
@@ -45,9 +34,7 @@ export default function CleanAndReview() {
   }
 
   if (!result) {
-    return (
-      <Detail markdown="**Clipboard is empty.** Copy some terminal output first, then run Rinse." />
-    );
+    return <Detail markdown="**Clipboard is empty.** Copy some terminal output first, then run Rinse." />;
   }
 
   if (!result.changed) {
@@ -63,8 +50,7 @@ export default function CleanAndReview() {
     );
   }
 
-  const originalLineCount = result.original.split("\n").length;
-  const cleanedLineCount = result.cleaned.split("\n").length;
+  const { originalLineCount, cleanedLineCount } = result;
 
   const markdown = `
 ## Rinsed output
@@ -88,19 +74,17 @@ ${result.cleaned}
           <Detail.Metadata.Label
             icon={{
               source: Icon.Minus,
-              tintColor: Color.Green
+              tintColor: Color.Green,
             }}
             text={`${result.original.length - result.cleaned.length} (${result.reductionPercent}%)`}
             title="Characters rinsed"
           />
-          <Detail.Metadata.Label
-            text={`${originalLineCount} → ${cleanedLineCount}`}
-            title="Lines"
-          />
+          <Detail.Metadata.Label text={`${originalLineCount} → ${cleanedLineCount}`} title="Lines" />
           <Detail.Metadata.Separator />
           <Detail.Metadata.Label
             icon={{
-              source: Icon.Checkmark, tintColor: Color.Green
+              source: Icon.Checkmark,
+              tintColor: Color.Green,
             }}
             text="Ready to copy"
             title="Status"
@@ -114,7 +98,7 @@ ${result.cleaned}
             onAction={copyAndClose}
             shortcut={{
               modifiers: ["cmd"],
-              key: "return"
+              key: "return",
             }}
             title="Copy & Close"
           />
@@ -122,7 +106,7 @@ ${result.cleaned}
             content={result.cleaned}
             shortcut={{
               modifiers: ["cmd", "shift"],
-              key: "c"
+              key: "c",
             }}
             title="Copy to Clipboard"
           />
