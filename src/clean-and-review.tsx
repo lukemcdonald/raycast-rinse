@@ -116,7 +116,7 @@ ${result.cleaned}
               modifiers: ["cmd"],
               key: "return"
             }}
-            title="Copy Rinsed Text"
+            title="Copy & Close"
           />
           <Action.CopyToClipboard
             content={result.cleaned}
@@ -124,7 +124,7 @@ ${result.cleaned}
               modifiers: ["cmd", "shift"],
               key: "c"
             }}
-            title="Copy Rinsed Text"
+            title="Copy to Clipboard"
           />
         </ActionPanel>
       }
