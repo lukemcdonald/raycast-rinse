@@ -17,7 +17,7 @@ const SENTENCE_END_RE = /[.?!:]$/;
 const LIST_MARKER_RE = /^(\s*[-*>]|\s*\d+\.)\s/;
 
 // Leading/trailing pipe borders (│ and | with optional spaces)
-const LEADING_PIPE_RE = /^[\s│|]+/;
+const LEADING_PIPE_RE = /^\s*[│|]\s*/;
 const TRAILING_PIPE_RE = /[\s│|]+$/;
 
 export function cleanText(input: string): string {
@@ -52,7 +52,8 @@ export function cleanText(input: string): string {
       next !== undefined &&
       next !== "" &&
       !SENTENCE_END_RE.test(current) &&
-      !LIST_MARKER_RE.test(next);
+      !LIST_MARKER_RE.test(next) &&
+      !(current.match(/^\s/) && !LIST_MARKER_RE.test(current));
 
     if (canJoin) {
       cleaned[i + 1] = current + " " + next.trimStart();
@@ -61,7 +62,11 @@ export function cleanText(input: string): string {
     }
   }
 
-  return joined.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  return joined
+    .map((line) => line.trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 export interface CleanResult {
