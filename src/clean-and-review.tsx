@@ -87,7 +87,6 @@ export default function CleanAndReview() {
 
   return (
     <Detail
-      navigationTitle="Confirm the baby. Toss the bathwater."
       markdown={buildMarkdown(result)}
       metadata={<CleanMetadata result={result} />}
       actions={<CleanActions onCopyAndClose={copyAndClose} />}
