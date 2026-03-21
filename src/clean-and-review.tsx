@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { cleanWithStats, type CleanResult } from "./utils/cleaner";
+import { type CleanResult } from "./utils/cleaner";
+import { readAndClean } from "./utils/clipboard";
 import {
   Action,
   ActionPanel,
@@ -17,19 +18,18 @@ function useClipboardClean(): { result: CleanResult | null; loading: boolean } {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Clipboard.read().then(({ text }) => {
-      if (!text) {
+    readAndClean().then((outcome) => {
+      if (outcome.status === "empty") {
         setLoading(false);
         showHUD("Nothing in the tub.").then(() => closeMainWindow());
         return;
       }
-      const cleanResult = cleanWithStats(text);
-      if (!cleanResult.changed) {
+      if (outcome.status === "unchanged") {
         setLoading(false);
         showHUD("Already clean. No bathwater to toss.").then(() => closeMainWindow());
         return;
       }
-      setResult(cleanResult);
+      setResult(outcome.result);
       setLoading(false);
     });
   }, []);
