@@ -10,6 +10,12 @@ const SPINNER_RE = /[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏⠁⠂⠄⡀⢀⠠⠐⠈]/g;
 // Lines that are purely decorative: only repeated ─ ═ - = ~ * # chars (3+)
 const DECORATION_LINE_RE = /^[\s\-=~*#─═━]+$/;
 
+// Sentence-ending punctuation that signals a line should NOT be joined forward
+const SENTENCE_END_RE = /[.?!:]$/;
+
+// List-marker at the start of a line that should NOT be joined onto a previous line
+const LIST_MARKER_RE = /^(\s*[-*>]|\s*\d+\.)\s/;
+
 // Leading/trailing pipe borders (│ and | with optional spaces)
 const LEADING_PIPE_RE = /^[\s│|]+/;
 const TRAILING_PIPE_RE = /[\s│|]+$/;
@@ -32,7 +38,30 @@ export function cleanText(input: string): string {
     cleaned.push(line);
   }
 
-  return cleaned.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  // Second pass: rejoin lines that were soft-wrapped (e.g. by Claude Code at ~80 chars).
+  // A line is joined to the next when:
+  //   - neither line is blank
+  //   - the current line does not end with sentence-ending punctuation
+  //   - the next line does not start with a list marker
+  const joined: string[] = [];
+  for (let i = 0; i < cleaned.length; i++) {
+    const current = cleaned[i];
+    const next = cleaned[i + 1];
+    const canJoin =
+      current !== "" &&
+      next !== undefined &&
+      next !== "" &&
+      !SENTENCE_END_RE.test(current) &&
+      !LIST_MARKER_RE.test(next);
+
+    if (canJoin) {
+      cleaned[i + 1] = current + " " + next.trimStart();
+    } else {
+      joined.push(current);
+    }
+  }
+
+  return joined.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
 export interface CleanResult {
