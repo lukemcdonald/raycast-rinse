@@ -47,16 +47,18 @@ export function cleanText(input: string): string {
   for (let i = 0; i < cleaned.length; i++) {
     const current = cleaned[i];
     const next = cleaned[i + 1];
+    const isIndentedCode = /^\s/.test(current) && !LIST_MARKER_RE.test(current);
+
     const canJoin =
       current !== "" &&
       next !== undefined &&
       next !== "" &&
       !SENTENCE_END_RE.test(current) &&
       !LIST_MARKER_RE.test(next) &&
-      !(current.match(/^\s/) && !LIST_MARKER_RE.test(current));
+      !isIndentedCode;
 
     if (canJoin) {
-      cleaned[i + 1] = current + " " + next.trimStart();
+      cleaned[i + 1] = `${current} ${next.trimStart()}`;
     } else {
       joined.push(current);
     }
