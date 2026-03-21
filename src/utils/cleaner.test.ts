@@ -133,9 +133,7 @@ describe("cleanText", () => {
 
     it("does not join indented (code) lines", () => {
       // Indentation prevents joining, but the final .trim() pass strips leading spaces
-      expect(cleanText("Example:\n  const x = 1;\n  const y = 2;")).toBe(
-        "Example:\nconst x = 1;\nconst y = 2;"
-      );
+      expect(cleanText("Example:\n  const x = 1;\n  const y = 2;")).toBe("Example:\nconst x = 1;\nconst y = 2;");
     });
 
     it("does not join lines inside a fenced code block", () => {
