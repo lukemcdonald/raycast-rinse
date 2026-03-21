@@ -151,6 +151,18 @@ describe("cleanText", () => {
     it("collapses 3+ blank lines to 2", () => {
       expect(cleanText("a\n\n\n\nb")).toBe("a\n\nb");
     });
+
+    it("strips uniform leading indent and joins soft-wrapped lines", () => {
+      const input = [
+        "  npm run publish",
+        "",
+        "  It will pull contributions first, then open a GitHub auth prompt and create the PR in",
+        "  raycast/extensions automatically.",
+      ].join("\n");
+      expect(cleanText(input)).toBe(
+        "npm run publish\n\nIt will pull contributions first, then open a GitHub auth prompt and create the PR in raycast/extensions automatically.",
+      );
+    });
   });
 
   // ─── Snapshot tests ────────────────────────────────────────────────────────

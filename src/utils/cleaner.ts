@@ -27,6 +27,15 @@ const INDENTED_LINE_RE = /^\s/;
 // Fenced code block delimiter (``` with optional language tag)
 const FENCE_RE = /^```/;
 
+function dedent(text: string): string {
+  const lines = text.split("\n");
+  const nonEmpty = lines.filter((l) => l.trim().length > 0);
+  if (nonEmpty.length === 0) return text;
+  const minIndent = Math.min(...nonEmpty.map((l) => (l.match(/^( *)/) ?? ["", ""])[1].length));
+  if (minIndent === 0) return text;
+  return lines.map((l) => l.slice(minIndent)).join("\n");
+}
+
 export function cleanText(input: string): string {
   if (!input.trim()) {
     return input;
@@ -37,6 +46,7 @@ export function cleanText(input: string): string {
   text = text.replace(ANSI_ESCAPE_RE, "");
   text = text.replace(BOX_DRAWING_RE, "");
   text = text.replace(SPINNER_RE, "");
+  text = dedent(text);
 
   const lines = text.split("\n");
   const cleaned: string[] = [];

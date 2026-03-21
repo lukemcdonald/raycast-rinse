@@ -89,7 +89,7 @@ Rinse is careful not to over-clean. It preserves:
 - **Fenced code blocks**: content inside ` ``` ` is never touched
 - **List structure**: lines starting with `-`, `*`, `>`, or numbered lists aren't merged
 - **Sentence boundaries**: lines ending with `.`, `?`, `!`, or `:` don't get merged into the next line
-- **Indented code**: indented lines are treated as code and left alone
+- **Indented code**: lines indented relative to surrounding text are treated as code and left alone
 
 ---
 
