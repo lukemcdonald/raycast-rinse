@@ -55,6 +55,7 @@
     "build": "ray build",
     "dev": "ray develop",
     "format:fix": "prettier --write .",
+    "lint": "ray lint",
     "lint:fix": "ray lint --fix",
     "style": "npm run format:fix && npm run lint:fix",
     "typecheck": "tsc --noEmit",
