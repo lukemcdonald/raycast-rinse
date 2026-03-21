@@ -41,7 +41,7 @@ One command. Clean clipboard. Done.
 
 1. Clone this repo
 2. `cd` into the `rinse` directory
-3. Run `pnpm install && pnpm dev`
+3. Run `npm install && npm run dev`
 4. Raycast picks it up automatically and it appears at the top of root search
 
 ---

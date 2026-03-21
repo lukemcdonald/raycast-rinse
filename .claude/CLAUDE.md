@@ -1,0 +1,1 @@
+- Before marking any task complete: run `npm run style` and `npm run typecheck`
