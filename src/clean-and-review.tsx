@@ -9,7 +9,8 @@ import {
   Color,
   Detail,
   Icon,
-  showHUD,
+  showToast,
+  Toast,
   useNavigation,
 } from "@raycast/api";
 
@@ -32,7 +33,10 @@ export default function CleanAndReview() {
       return
     };
     await Clipboard.copy(result.cleaned);
-    await showHUD("✓ Rinsed text copied to clipboard");
+    await showToast({
+      style: Toast.Style.Success,
+      title: "✓ Bathwater tossed.",
+    });
     pop();
   }
 
@@ -72,7 +76,7 @@ ${result.cleaned}
 ---
 
 ### Stats
-- **Characters:** ${result.original.length} → ${result.cleaned.length} (${result.reductionPercent}% removed)
+- **Characters:** ${result.original.length} → ${result.cleaned.length} (${result.reductionPercent}% rinsed)
 - **Lines:** ${originalLineCount} → ${cleanedLineCount}
 `;
 
@@ -87,7 +91,7 @@ ${result.cleaned}
               tintColor: Color.Green
             }}
             text={`${result.original.length - result.cleaned.length} (${result.reductionPercent}%)`}
-            title="Characters removed"
+            title="Characters rinsed"
           />
           <Detail.Metadata.Label
             text={`${originalLineCount} → ${cleanedLineCount}`}
