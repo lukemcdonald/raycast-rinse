@@ -138,6 +138,14 @@ describe("cleanText", () => {
       );
     });
 
+    it("does not join lines inside a fenced code block", () => {
+      expect(cleanText("```\nline one\nline two\n```")).toBe("```\nline one\nline two\n```");
+    });
+
+    it("does not join the fence delimiter with the following line", () => {
+      expect(cleanText("```ts\nconst x = 1;\n```\nAfter.")).toBe("```ts\nconst x = 1;\n```\nAfter.");
+    });
+
     it("preserves blank lines as paragraph breaks", () => {
       expect(cleanText("Para one.\n\nPara two.")).toBe("Para one.\n\nPara two.");
     });

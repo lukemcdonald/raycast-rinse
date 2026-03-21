@@ -24,6 +24,9 @@ const TRAILING_PIPE_RE = /[\s│|]+$/;
 // Indented non-list line (signals a code block that should not be joined)
 const INDENTED_LINE_RE = /^\s/;
 
+// Fenced code block delimiter (``` with optional language tag)
+const FENCE_RE = /^```/;
+
 export function cleanText(input: string): string {
   if (!input.trim()) {
     return input;
@@ -52,13 +55,21 @@ export function cleanText(input: string): string {
   }
 
   const joined: string[] = [];
+  let inFence = false;
 
   for (let i = 0; i < cleaned.length; i++) {
     const current = cleaned[i];
     const next = cleaned[i + 1];
+
+    if (FENCE_RE.test(current)) {
+      inFence = !inFence;
+    }
+
     const isIndentedCode = INDENTED_LINE_RE.test(current) && !LIST_MARKER_RE.test(current);
 
     const canJoin =
+      !inFence &&
+      !FENCE_RE.test(current) &&
       current !== "" &&
       next !== undefined &&
       next !== "" &&
