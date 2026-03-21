@@ -26,8 +26,8 @@ const INDENTED_LINE_RE = /^\s/;
 
 export function cleanText(input: string): string {
   if (!input.trim()) {
-    return input
-  };
+    return input;
+  }
 
   let text = input;
 
@@ -102,6 +102,6 @@ export function cleanWithStats(input: string): CleanResult {
     cleanedLineCount,
     original: input,
     originalLineCount,
-    reductionPercent
+    reductionPercent,
   };
 }

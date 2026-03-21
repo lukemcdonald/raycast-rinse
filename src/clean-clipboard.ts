@@ -18,6 +18,7 @@ export default async function main() {
 
   await Clipboard.copy(result.cleaned);
 
+  // TODO: If there is not percent in change, then there would be nothing to clean? Do we need the ternary operator? Can this be simplified?
   const hudText = result.reductionPercent > 0 ? `✓ Bougie! (${result.reductionPercent}% rinsed)` : `✓ Bougie!`;
 
   await showHUD(hudText);

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { cleanWithStats, type CleanResult } from "./utils/cleaner";
 import { Action, ActionPanel, Clipboard, Color, Detail, Icon, showToast, Toast, useNavigation } from "@raycast/api";
 
+// TODO: Can we surface the Clean and preview description from package.json
+
 function useClipboardClean(): { result: CleanResult | null; loading: boolean } {
   const [result, setResult] = useState<CleanResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -82,6 +84,7 @@ export default function CleanAndReview() {
       return
     };
     await Clipboard.copy(result.cleaned);
+    // TODO: I'm not seeing the toast? When should I see it?
     await showToast({
       style: Toast.Style.Success,
       title: "✓ Bathwater tossed."
