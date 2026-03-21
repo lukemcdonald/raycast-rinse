@@ -18,9 +18,18 @@ function useClipboardClean(): { result: CleanResult | null; loading: boolean } {
 
   useEffect(() => {
     Clipboard.read().then(({ text }) => {
-      if (text) {
-        setResult(cleanWithStats(text));
+      if (!text) {
+        setLoading(false);
+        showHUD("Nothing in the tub.").then(() => closeMainWindow());
+        return;
       }
+      const cleanResult = cleanWithStats(text);
+      if (!cleanResult.changed) {
+        setLoading(false);
+        showHUD("Already clean. No bathwater to toss.").then(() => closeMainWindow());
+        return;
+      }
+      setResult(cleanResult);
       setLoading(false);
     });
   }, []);
@@ -46,12 +55,12 @@ function CleanMetadata({ result }: { result: CleanResult }) {
   );
 }
 
-function CleanActions({ onCopyAndClose }: { onCopyAndClose: () => void }) {
+function CleanActions({ onCopy }: { onCopy: () => void }) {
   return (
     <ActionPanel>
       <Action
         icon={Icon.Clipboard}
-        onAction={onCopyAndClose}
+        onAction={onCopy}
         shortcut={{ modifiers: ["cmd"], key: "return" }}
         title="Toss the Bathwater"
       />
@@ -72,16 +81,7 @@ export default function CleanAndReview() {
     await showHUD("✓ Baby saved. Bathwater tossed.");
   }
 
-  useEffect(() => {
-    if (loading) return;
-    if (!result) {
-      showHUD("Nothing in the tub.").then(() => closeMainWindow());
-    } else if (!result.changed) {
-      showHUD("Already clean. No bathwater to toss.").then(() => closeMainWindow());
-    }
-  }, [loading, result]);
-
-  if (loading || !result || !result.changed) {
+  if (loading || !result) {
     return <Detail isLoading />;
   }
 
@@ -89,7 +89,7 @@ export default function CleanAndReview() {
     <Detail
       markdown={buildMarkdown(result)}
       metadata={<CleanMetadata result={result} />}
-      actions={<CleanActions onCopyAndClose={copyAndClose} />}
+      actions={<CleanActions onCopy={copyAndClose} />}
     />
   );
 }
