@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import { cleanWithStats, type CleanResult } from "./utils/cleaner";
-import { Action, ActionPanel, Clipboard, Color, Detail, Icon, showToast, Toast, useNavigation } from "@raycast/api";
-
-// TODO: Can we surface the Clean and preview description from package.json
+import {
+  Action,
+  ActionPanel,
+  Clipboard,
+  Color,
+  Detail,
+  Icon,
+  closeMainWindow,
+  showHUD,
+  useNavigation,
+} from "@raycast/api";
 
 function useClipboardClean(): { result: CleanResult | null; loading: boolean } {
   const [result, setResult] = useState<CleanResult | null>(null);
@@ -21,55 +29,31 @@ function useClipboardClean(): { result: CleanResult | null; loading: boolean } {
 }
 
 function buildMarkdown(result: CleanResult): string {
-  const { originalLineCount, cleanedLineCount } = result;
-  return `
-## Rinsed output
-
-\`\`\`
-${result.cleaned}
-\`\`\`
-
----
-
-### Stats
-- **Characters:** ${result.original.length} → ${result.cleaned.length} (${result.reductionPercent}% rinsed)
-- **Lines:** ${originalLineCount} → ${cleanedLineCount}
-`;
+  return `\`\`\`\n${result.cleaned}\n\`\`\``;
 }
 
 function CleanMetadata({ result }: { result: CleanResult }) {
   const { originalLineCount, cleanedLineCount } = result;
   return (
     <Detail.Metadata>
-      <Detail.Metadata.Label
-        icon={{ source: Icon.Minus, tintColor: Color.Green }}
-        text={`${result.original.length - result.cleaned.length} (${result.reductionPercent}%)`}
-        title="Characters rinsed"
-      />
-      <Detail.Metadata.Label text={`${originalLineCount} → ${cleanedLineCount}`} title="Lines" />
+      <Detail.Metadata.TagList title="Bathwater">
+        <Detail.Metadata.TagList.Item text={`${result.reductionPercent}% rinsed`} color={Color.Green} />
+      </Detail.Metadata.TagList>
       <Detail.Metadata.Separator />
-      <Detail.Metadata.Label
-        icon={{ source: Icon.Checkmark, tintColor: Color.Green }}
-        text="Ready to copy"
-        title="Status"
-      />
+      <Detail.Metadata.Label text={`${result.original.length} → ${result.cleaned.length}`} title="Characters" />
+      <Detail.Metadata.Label text={`${originalLineCount} → ${cleanedLineCount}`} title="Lines" />
     </Detail.Metadata>
   );
 }
 
-function CleanActions({ result, onCopyAndClose }: { result: CleanResult; onCopyAndClose: () => void }) {
+function CleanActions({ onCopyAndClose }: { onCopyAndClose: () => void }) {
   return (
     <ActionPanel>
       <Action
         icon={Icon.Clipboard}
         onAction={onCopyAndClose}
         shortcut={{ modifiers: ["cmd"], key: "return" }}
-        title="Copy & Close"
-      />
-      <Action.CopyToClipboard
-        content={result.cleaned}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
-        title="Copy to Clipboard"
+        title="Toss the Bathwater"
       />
     </ActionPanel>
   );
@@ -81,43 +65,32 @@ export default function CleanAndReview() {
 
   async function copyAndClose() {
     if (!result) {
-      return
-    };
+      return;
+    }
     await Clipboard.copy(result.cleaned);
-    // TODO: I'm not seeing the toast? When should I see it?
-    await showToast({
-      style: Toast.Style.Success,
-      title: "✓ Bathwater tossed."
-    });
     pop();
+    await showHUD("✓ Baby saved. Bathwater tossed.");
   }
 
-  if (loading) {
-    return <Detail isLoading />
-  };
+  useEffect(() => {
+    if (loading) return;
+    if (!result) {
+      showHUD("Nothing in the tub.").then(() => closeMainWindow());
+    } else if (!result.changed) {
+      showHUD("Already clean. No bathwater to toss.").then(() => closeMainWindow());
+    }
+  }, [loading, result]);
 
-  if (!result) {
-    return <Detail markdown="**Clipboard is empty.** Copy some terminal output first, then run Rinse." />;
-  }
-
-  if (!result.changed) {
-    return (
-      <Detail
-        markdown="**Nothing to clean.** The clipboard text looks clean already."
-        actions={
-          <ActionPanel>
-            <Action title="Close" onAction={pop} />
-          </ActionPanel>
-        }
-      />
-    );
+  if (loading || !result || !result.changed) {
+    return <Detail isLoading />;
   }
 
   return (
     <Detail
+      navigationTitle="Confirm the baby. Toss the bathwater."
       markdown={buildMarkdown(result)}
       metadata={<CleanMetadata result={result} />}
-      actions={<CleanActions result={result} onCopyAndClose={copyAndClose} />}
+      actions={<CleanActions onCopyAndClose={copyAndClose} />}
     />
   );
 }
