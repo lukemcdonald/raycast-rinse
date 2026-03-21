@@ -1,21 +1,20 @@
 import { Clipboard, showHUD } from "@raycast/api";
-import { cleanWithStats } from "./utils/cleaner";
+import { readAndClean } from "./utils/clipboard";
 
 export default async function main() {
-  const { text } = await Clipboard.read();
+  const outcome = await readAndClean();
 
-  if (!text) {
+  if (outcome.status === "empty") {
     await showHUD("Clipboard is empty");
     return;
   }
 
-  const result = cleanWithStats(text);
-
-  if (!result.changed) {
+  if (outcome.status === "unchanged") {
     await showHUD("✓ Nothing to clean");
     return;
   }
 
+  const { result } = outcome;
   await Clipboard.copy(result.cleaned);
 
   // reductionPercent can be 0 even when changed=true (e.g. tiny edits that round to <1%)
