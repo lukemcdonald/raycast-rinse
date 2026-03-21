@@ -17,10 +17,22 @@
     {
       "name": "clean-clipboard",
       "title": "Clean Clipboard",
-      "description": "Straight bougie.",
+      "description": "So fresh and so clean, clean.",
       "keywords": [
         "clean",
         "clipboard",
+        "strip"
+      ],
+      "mode": "no-view"
+    },
+    {
+      "name": "clean-and-paste",
+      "title": "Clean & Paste Clipboard",
+      "description": "Straight bougie!",
+      "keywords": [
+        "clean",
+        "clipboard",
+        "paste",
         "strip"
       ],
       "mode": "no-view"

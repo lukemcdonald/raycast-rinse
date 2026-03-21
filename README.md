@@ -33,7 +33,7 @@ Claude Thinking...
 Just use a hook. You're done.
 ```
 
-One command. Clean clipboard. Done.
+Copy. Clean. Paste. Done.
 
 ---
 
@@ -52,9 +52,15 @@ One command. Clean clipboard. Done.
 
 Silent and instant. Reads your clipboard, strips the noise, writes it back. You get a quick HUD confirmation and move on. No windows, no friction.
 
-> **"Straight bougie."**
+> **"So fresh and so clean, clean."**
 
-### Clean and Review Clipboard
+### Clean & Paste Clipboard
+
+Cleans your clipboard and pastes the result directly into the focused app in one shot. No intermediate step. Copy Claude's output, trigger the command, and clean text lands where your cursor is.
+
+> **"Straight bougie!"**
+
+### Clean & Review Clipboard
 
 Opens a preview of the cleaned result before committing. The sidebar shows exactly how much was removed: character counts, line counts, reduction percentage. When you're happy, one action copies it to your clipboard.
 
@@ -89,5 +95,6 @@ Rinse is careful not to over-clean. It preserves:
 
 ## Tips
 
-- Assign a hotkey to "Clean Clipboard" so you can clean without ever opening Raycast.
-- Use "Clean and Review" when you want to see the diff before committing.
+- Assign a hotkey to **Clean Clipboard** (`Cmd+Shift+C`) to clean without opening Raycast.
+- Assign a hotkey to **Clean & Paste** (`Cmd+Shift+V`) to replace your paste with a clean paste.
+- Use **Clean & Review** when you want to see the diff before committing.
