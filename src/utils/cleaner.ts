@@ -8,8 +8,8 @@ const ANSI_ESCAPE_RE = /\x1B\[[0-9;?]*[A-Za-z]|\x1B[()][AB012]|\x1B[=>]|\x1B[78]
 // Spinner / progress characters (Braille + common spinner frames)
 const SPINNER_RE = /[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏⠁⠂⠄⡀⢀⠠⠐⠈]/g;
 
-// Lines that are purely decorative: only repeated ─ ═ - = ~ * # chars (3+)
-const DECORATION_LINE_RE = /^[\s\-=~*#─═━]+$/;
+// Lines that are purely decorative separators: only repeated ─ ═ - = ~ * # chars (3+)
+const SEPARATOR_LINE_RE = /^[\s\-=~*#─═━]+$/;
 
 // Sentence-ending punctuation that signals a line should NOT be joined forward
 const SENTENCE_END_RE = /[.?!:]$/;
@@ -34,15 +34,25 @@ const TABLE_ROW_RE = /^\s*\|(?:[^|]*\|){2,}\s*$/;
 
 function dedent(text: string): string {
   const lines = text.split("\n");
-  const nonEmpty = lines.filter((l) => l.trim().length > 0);
+  let minIndent = Infinity;
 
-  if (nonEmpty.length === 0) {
-    return text;
+  for (const line of lines) {
+    if (line.trim().length === 0) {
+      continue;
+    }
+
+    const indent = (line.match(/^( *)/) ?? ["", ""])[1].length;
+
+    if (indent < minIndent) {
+      minIndent = indent;
+    }
+
+    if (minIndent === 0) {
+      break;
+    }
   }
 
-  const minIndent = Math.min(...nonEmpty.map((l) => (l.match(/^( *)/) ?? ["", ""])[1].length));
-
-  if (minIndent === 0) {
+  if (!isFinite(minIndent) || minIndent === 0) {
     return text;
   }
 
@@ -74,7 +84,7 @@ export function cleanText(input: string): string {
       line = line.replace(LEADING_PIPE_RE, "");
       line = line.replace(TRAILING_PIPE_RE, "");
 
-      if (DECORATION_LINE_RE.test(line)) {
+      if (SEPARATOR_LINE_RE.test(line)) {
         continue;
       }
     }
