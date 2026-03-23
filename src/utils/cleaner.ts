@@ -27,12 +27,25 @@ const INDENTED_LINE_RE = /^\s/;
 // Fenced code block delimiter (``` with optional language tag)
 const FENCE_RE = /^```/;
 
+// Matches rows with 2+ columns — single-column rows (| content |) are ambiguous with terminal
+// borders and intentionally not matched. Unicode │ is stripped by BOX_DRAWING_RE before this
+// check runs, so only ASCII | remains.
+const TABLE_ROW_RE = /^\s*\|(?:[^|]*\|){2,}\s*$/;
+
 function dedent(text: string): string {
   const lines = text.split("\n");
   const nonEmpty = lines.filter((l) => l.trim().length > 0);
-  if (nonEmpty.length === 0) return text;
+
+  if (nonEmpty.length === 0) {
+    return text;
+  }
+
   const minIndent = Math.min(...nonEmpty.map((l) => (l.match(/^( *)/) ?? ["", ""])[1].length));
-  if (minIndent === 0) return text;
+
+  if (minIndent === 0) {
+    return text;
+  }
+
   return lines.map((l) => l.slice(minIndent)).join("\n");
 }
 
@@ -50,15 +63,20 @@ export function cleanText(input: string): string {
 
   const lines = text.split("\n");
   const cleaned: string[] = [];
+  const tableRowIndices = new Set<number>();
 
   for (const rawLine of lines) {
     let line = rawLine;
 
-    line = line.replace(LEADING_PIPE_RE, "");
-    line = line.replace(TRAILING_PIPE_RE, "");
+    if (TABLE_ROW_RE.test(line)) {
+      tableRowIndices.add(cleaned.length);
+    } else {
+      line = line.replace(LEADING_PIPE_RE, "");
+      line = line.replace(TRAILING_PIPE_RE, "");
 
-    if (DECORATION_LINE_RE.test(line)) {
-      continue;
+      if (DECORATION_LINE_RE.test(line)) {
+        continue;
+      }
     }
 
     cleaned.push(line);
@@ -85,7 +103,9 @@ export function cleanText(input: string): string {
       next !== "" &&
       !SENTENCE_END_RE.test(current) &&
       !LIST_MARKER_RE.test(next) &&
-      !isIndentedCode;
+      !isIndentedCode &&
+      !tableRowIndices.has(i) &&
+      !tableRowIndices.has(i + 1);
 
     if (canJoin) {
       cleaned[i + 1] = `${current} ${next.trimStart()}`;

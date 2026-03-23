@@ -90,6 +90,7 @@ Rinse is careful not to over-clean. It preserves:
 - **List structure**: lines starting with `-`, `*`, `>`, or numbered lists aren't merged
 - **Sentence boundaries**: lines ending with `.`, `?`, `!`, or `:` don't get merged into the next line
 - **Indented code**: lines indented relative to surrounding text are treated as code and left alone
+- **Markdown tables**: multi-column tables (`| a | b |`) are preserved as-is; single-column rows (`| content |`) are treated as terminal pipe borders and stripped
 
 ---
 
