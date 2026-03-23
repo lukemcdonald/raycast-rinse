@@ -89,23 +89,29 @@ export function cleanText(input: string): string {
     const current = cleaned[i];
     const next = cleaned[i + 1];
 
-    if (FENCE_RE.test(current)) {
+    const isFenceDelimiter = FENCE_RE.test(current);
+
+    if (isFenceDelimiter) {
       inFence = !inFence;
     }
 
-    const isIndentedCode = INDENTED_LINE_RE.test(current) && !LIST_MARKER_RE.test(current);
+    const isIndentedCode = !isFenceDelimiter && INDENTED_LINE_RE.test(current) && !LIST_MARKER_RE.test(current);
+    const isTableRow = tableRowIndices.has(i);
+    const isClauseEnd = SENTENCE_END_RE.test(current);
+    const isNextEmpty = next === undefined || next === "";
+    const isNextTableRow = tableRowIndices.has(i + 1);
+    const isNextListItem = LIST_MARKER_RE.test(next);
 
     const canJoin =
-      !inFence &&
-      !FENCE_RE.test(current) &&
       current !== "" &&
-      next !== undefined &&
-      next !== "" &&
-      !SENTENCE_END_RE.test(current) &&
-      !LIST_MARKER_RE.test(next) &&
+      !inFence &&
+      !isFenceDelimiter &&
       !isIndentedCode &&
-      !tableRowIndices.has(i) &&
-      !tableRowIndices.has(i + 1);
+      !isTableRow &&
+      !isClauseEnd &&
+      !isNextEmpty &&
+      !isNextTableRow &&
+      !isNextListItem;
 
     if (canJoin) {
       cleaned[i + 1] = `${current} ${next.trimStart()}`;
