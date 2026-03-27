@@ -1,6 +1,6 @@
 import { Clipboard } from "@raycast/api";
 import { describe, expect, it, vi } from "vitest";
-import { buildHudText, readAndClean } from "./clipboard";
+import { HUD_EMPTY, HUD_UNCHANGED, buildHudText, readAndClean } from "./clipboard";
 
 // ─── readAndClean ─────────────────────────────────────────────────────────────
 
@@ -25,17 +25,29 @@ describe("readAndClean", () => {
   });
 });
 
+// ─── constants ────────────────────────────────────────────────────────────────
+
+describe("HUD constants", () => {
+  it("exports HUD_EMPTY", () => {
+    expect(HUD_EMPTY).toBe("Clipboard empty");
+  });
+
+  it("exports HUD_UNCHANGED", () => {
+    expect(HUD_UNCHANGED).toBe("Nothing to clean");
+  });
+});
+
 // ─── buildHudText ─────────────────────────────────────────────────────────────
 
 describe("buildHudText", () => {
-  it("returns base success text when reduction is 0", () => {
-    expect(buildHudText(0)).toBe("✓ Bougie!");
+  it("returns Rinsed when reduction is 0", () => {
+    expect(buildHudText(0)).toBe("Rinsed");
   });
 
   it.each([
-    [1, "✓ Bougie! (1% rinsed)"],
-    [42, "✓ Bougie! (42% rinsed)"],
-    [100, "✓ Bougie! (100% rinsed)"],
+    [1, "1% rinsed"],
+    [42, "42% rinsed"],
+    [100, "100% rinsed"],
   ] as const)("includes reduction percentage of %i", (reduction, expected) => {
     expect(buildHudText(reduction)).toBe(expected);
   });
