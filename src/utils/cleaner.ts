@@ -1,9 +1,7 @@
+import { stripVTControlCharacters } from "node:util";
+
 // Unicode box-drawing block: U+2500–U+257F
 const BOX_DRAWING_RE = /[\u2500-\u257F]/g;
-
-// ANSI escape sequences (colors, cursor movement, erase, etc.)
-// eslint-disable-next-line no-control-regex
-const ANSI_ESCAPE_RE = /\x1B\[[0-9;?]*[A-Za-z]|\x1B[()][AB012]|\x1B[=>]|\x1B[78]/g;
 
 // Spinner / progress characters (Braille + common spinner frames)
 const SPINNER_RE = /[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏⠁⠂⠄⡀⢀⠠⠐⠈]/g;
@@ -66,7 +64,7 @@ export function cleanText(input: string): string {
 
   let text = input;
 
-  text = text.replace(ANSI_ESCAPE_RE, "");
+  text = stripVTControlCharacters(text);
   text = text.replace(BOX_DRAWING_RE, "");
   text = text.replace(SPINNER_RE, "");
   text = text.split(/\n\n+/).map(dedent).join("\n\n");
