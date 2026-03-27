@@ -50,7 +50,7 @@ function dedent(text: string): string {
     }
   }
 
-  if (!isFinite(minIndent) || minIndent === 0) {
+  if (!Number.isFinite(minIndent) || minIndent === 0) {
     return text;
   }
 
