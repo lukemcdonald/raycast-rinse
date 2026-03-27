@@ -174,6 +174,10 @@ describe("cleanText", () => {
       expect(cleanText("a\n\n\n\nb")).toBe("a\n\nb");
     });
 
+    it("joins soft-wrapped lines in later paragraphs when first paragraph has no leading indent", () => {
+      expect(cleanText("No indent.\n\n  Indented\n  paragraph.")).toBe("No indent.\n\nIndented paragraph.");
+    });
+
     it("strips uniform leading indent and joins soft-wrapped lines", () => {
       const input = [
         "  npm run publish",

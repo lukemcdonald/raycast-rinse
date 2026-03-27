@@ -69,7 +69,7 @@ export function cleanText(input: string): string {
   text = text.replace(ANSI_ESCAPE_RE, "");
   text = text.replace(BOX_DRAWING_RE, "");
   text = text.replace(SPINNER_RE, "");
-  text = dedent(text);
+  text = text.split(/\n\n+/).map(dedent).join("\n\n");
 
   const lines = text.split("\n");
   const cleaned: string[] = [];
