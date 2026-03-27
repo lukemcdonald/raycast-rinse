@@ -228,6 +228,15 @@ describe("joinWrappedLines", () => {
     });
   });
 
+  describe("CLI command lines", () => {
+    it("does not join a line containing ' -- ' onto the next line", () => {
+      expect(joinWrappedLines([text("npm run build -- --skipLibCheck"), text("npm test -- --timeout 10000")])).toEqual([
+        "npm run build -- --skipLibCheck",
+        "npm test -- --timeout 10000",
+      ]);
+    });
+  });
+
   describe("does not mutate input", () => {
     it("leaves the input array unchanged", () => {
       const lines = [text("hello"), text("world")];
@@ -409,6 +418,12 @@ describe("cleanText", () => {
       expect(cleanText("Steps:\n1. first\n2. second")).toBe("Steps:\n1. first\n2. second");
     });
 
+    it("does not join CLI command lines containing ' -- '", () => {
+      expect(cleanText("npm run build -- --skipLibCheck\nnpm test -- --timeout 10000")).toBe(
+        "npm run build -- --skipLibCheck\nnpm test -- --timeout 10000",
+      );
+    });
+
     it("does not join indented (code) lines", () => {
       // Indentation prevents joining, but the final .trim() pass strips leading spaces
       expect(cleanText("Example:\n  const x = 1;\n  const y = 2;")).toBe("Example:\nconst x = 1;\nconst y = 2;");
@@ -444,6 +459,24 @@ describe("cleanText", () => {
       expect(cleanText(input)).toBe(
         "npm run publish\n\nIt will pull contributions first, then open a GitHub auth prompt and create the PR in raycast/extensions automatically.",
       );
+    });
+  });
+
+  // ─── Idempotency ───────────────────────────────────────────────────────────
+
+  describe("idempotency", () => {
+    const cases = [
+      ["npm install output", npmInstallOutput],
+      ["claude prose explanation", claudeProseExplanation],
+      ["claude step-by-step", claudeStepByStep],
+      ["claude code explanation", claudeCodeExplanation],
+      ["claude terminal response", claudeTerminalResponse],
+      ["claude markdown response", claudeWithMarkdown],
+      ["claude build error", claudeBuildError],
+    ] as const;
+
+    it.each(cases)("%s is idempotent", (_, input) => {
+      expect(cleanText(cleanText(input))).toBe(cleanText(input));
     });
   });
 
@@ -502,10 +535,8 @@ describe("cleanWithStats", () => {
   });
 
   it("calculates reductionPercent correctly", () => {
-    // input: 10 chars, cleaned: 5 chars → 50% reduction
-    const result = cleanWithStats("\x1b[32mhello\x1b[0m"); // "\x1b[32m" (4) + "hello" (5) + "\x1b[0m" (4) = 13 chars → 5 chars
-    expect(result.reductionPercent).toBeGreaterThan(0);
-    expect(result.reductionPercent).toBeLessThanOrEqual(100);
+    const result = cleanWithStats("\x1b[32mhello\x1b[0m");
+    expect(result.reductionPercent).toBe(64);
   });
 
   it("preserves original in result", () => {

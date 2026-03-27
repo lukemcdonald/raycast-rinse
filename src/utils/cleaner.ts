@@ -130,6 +130,7 @@ export function joinWrappedLines(lines: TaggedLine[]): string[] {
     const isNextEmpty = next === undefined || next.content === "";
     const isIndentedCode = !isFenceDelimiter && INDENTED_LINE_RE.test(current) && !LIST_MARKER_RE.test(current);
     const isClauseEnd = SENTENCE_END_RE.test(current);
+    const hasCliFlags = current.includes(" -- ");
     const isNextListItem = next !== undefined && LIST_MARKER_RE.test(next.content);
 
     const canJoin =
@@ -139,6 +140,7 @@ export function joinWrappedLines(lines: TaggedLine[]): string[] {
       !isIndentedCode &&
       !isTableRow &&
       !isClauseEnd &&
+      !hasCliFlags &&
       !isNextEmpty &&
       !isNextTableRow &&
       !isNextListItem;
