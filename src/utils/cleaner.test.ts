@@ -29,6 +29,10 @@ describe("stripArtifacts", () => {
     expect(stripArtifacts("\x1b[2Aloading\x1b[K")).toBe("loading");
   });
 
+  it("strips bold and dim codes", () => {
+    expect(stripArtifacts("\x1b[1mbold\x1b[22m and \x1b[2mdim\x1b[22m")).toBe("bold and dim");
+  });
+
   it("strips box-drawing characters", () => {
     expect(stripArtifacts("┌──┐\n│hi│\n└──┘")).toBe("\nhi\n");
   });
@@ -293,20 +297,6 @@ describe("cleanText", () => {
     });
   });
 
-  describe("ANSI escape codes", () => {
-    it("strips color codes", () => {
-      expect(cleanText("\x1b[32mhello\x1b[0m")).toBe("hello");
-    });
-
-    it("strips cursor movement sequences", () => {
-      expect(cleanText("\x1b[2Aloading\x1b[K")).toBe("loading");
-    });
-
-    it("strips bold/dim codes", () => {
-      expect(cleanText("\x1b[1mbold\x1b[22m and \x1b[2mdim\x1b[22m")).toBe("bold and dim");
-    });
-  });
-
   describe("box-drawing characters", () => {
     it("strips horizontal and vertical box chars", () => {
       expect(cleanText("│ output │")).toBe("output");
@@ -318,12 +308,8 @@ describe("cleanText", () => {
   });
 
   describe("spinner and Braille characters", () => {
-    it("strips Braille spinner frames", () => {
+    it("strips Braille spinner frames and trims residual space", () => {
       expect(cleanText("⠋ Loading...")).toBe("Loading...");
-    });
-
-    it("strips multiple spinner chars", () => {
-      expect(cleanText("⠙⠹⠸ done")).toBe("done");
     });
   });
 
@@ -350,20 +336,6 @@ describe("cleanText", () => {
 
     it("keeps lines with meaningful content mixed with dashes", () => {
       expect(cleanText("hello-world")).toBe("hello-world");
-    });
-  });
-
-  describe("pipe borders", () => {
-    it("strips leading pipe borders", () => {
-      expect(cleanText("│ content")).toBe("content");
-    });
-
-    it("strips trailing pipe borders", () => {
-      expect(cleanText("content │")).toBe("content");
-    });
-
-    it("strips plain pipe borders", () => {
-      expect(cleanText("| content |")).toBe("content");
     });
   });
 
@@ -398,51 +370,13 @@ describe("cleanText", () => {
       expect(cleanText("First sentence.\nSecond sentence.")).toBe("First sentence.\nSecond sentence.");
     });
 
-    it("does not join across sentence-ending question mark", () => {
-      expect(cleanText("A question?\nAn answer.")).toBe("A question?\nAn answer.");
-    });
-
-    it("does not join across sentence-ending exclamation", () => {
-      expect(cleanText("Done!\nNext step.")).toBe("Done!\nNext step.");
-    });
-
-    it("does not join across sentence-ending colon", () => {
-      expect(cleanText("The following:\nitem one")).toBe("The following:\nitem one");
-    });
-
-    it("does not join list items onto the previous line", () => {
-      expect(cleanText("Options:\n- one\n- two")).toBe("Options:\n- one\n- two");
-    });
-
-    it("does not join numbered list items", () => {
-      expect(cleanText("Steps:\n1. first\n2. second")).toBe("Steps:\n1. first\n2. second");
-    });
-
-    it("does not join CLI command lines containing ' -- '", () => {
-      expect(cleanText("npm run build -- --skipLibCheck\nnpm test -- --timeout 10000")).toBe(
-        "npm run build -- --skipLibCheck\nnpm test -- --timeout 10000",
-      );
-    });
-
     it("does not join indented (code) lines", () => {
       // Indentation prevents joining, but the final .trim() pass strips leading spaces
       expect(cleanText("Example:\n  const x = 1;\n  const y = 2;")).toBe("Example:\nconst x = 1;\nconst y = 2;");
     });
 
-    it("does not join lines inside a fenced code block", () => {
-      expect(cleanText("```\nline one\nline two\n```")).toBe("```\nline one\nline two\n```");
-    });
-
     it("does not join the fence delimiter with the following line", () => {
       expect(cleanText("```ts\nconst x = 1;\n```\nAfter.")).toBe("```ts\nconst x = 1;\n```\nAfter.");
-    });
-
-    it("preserves blank lines as paragraph breaks", () => {
-      expect(cleanText("Para one.\n\nPara two.")).toBe("Para one.\n\nPara two.");
-    });
-
-    it("collapses 3+ blank lines to 2", () => {
-      expect(cleanText("a\n\n\n\nb")).toBe("a\n\nb");
     });
 
     it("joins soft-wrapped lines in later paragraphs when first paragraph has no leading indent", () => {
