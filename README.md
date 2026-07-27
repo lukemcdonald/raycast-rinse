@@ -33,10 +33,16 @@ Strip the noise and rejoin the lines, that's Rinse.
 
 ## Install
 
-1. Clone this repo
-2. `cd` into the `rinse` directory
-3. Run `npm install && npm run dev`
-4. Raycast picks it up automatically and it appears at the top of root search
+```sh
+git clone https://github.com/lukemcdonald/raycast-rinse.git
+cd raycast-rinse
+npm install
+npm run build
+```
+
+Raycast picks it up automatically and it appears at the top of root search. Works with both Raycast and Raycast Beta.
+
+To work on the code, run `npm run dev` instead for rebuild on save.
 
 ## Commands
 

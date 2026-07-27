@@ -65,8 +65,8 @@
     "vitest": "^4.1.0"
   },
   "scripts": {
-    "build": "ray build",
-    "dev": "ray develop",
+    "build": "node scripts/ray.mjs build",
+    "dev": "node scripts/ray.mjs develop",
     "format:fix": "prettier --write .",
     "lint": "ray lint",
     "lint:fix": "ray lint --fix",
