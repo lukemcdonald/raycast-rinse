@@ -61,7 +61,7 @@ function CleanActions({ onCopy }: { onCopy: () => void }) {
       <Action
         icon={Icon.Clipboard}
         onAction={onCopy}
-        shortcut={{ modifiers: ["cmd"], key: "return" }}
+        shortcut={{ macOS: { modifiers: ["cmd"], key: "return" }, Windows: { modifiers: ["ctrl"], key: "return" } }}
         title="Copy to Clipboard"
       />
     </ActionPanel>

@@ -2,9 +2,7 @@ import { Clipboard } from "@raycast/api";
 import { cleanWithStats, type CleanResult } from "./cleaner";
 
 export type ClipboardCleanResult =
-  | { status: "cleaned"; result: CleanResult }
-  | { status: "empty" }
-  | { status: "unchanged"; text: string };
+  { status: "cleaned"; result: CleanResult } | { status: "empty" } | { status: "unchanged"; text: string };
 
 export async function readAndClean(): Promise<ClipboardCleanResult> {
   const { text } = await Clipboard.read();
