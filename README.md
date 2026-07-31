@@ -62,17 +62,17 @@ Opens a preview of the cleaned result before you commit. The sidebar shows chara
 
 ## What Gets Cleaned
 
-| Artifact                      | Example                                              |
-| ----------------------------- | ---------------------------------------------------- |
-| ANSI escape codes             | `\x1B[32mGreen text\x1B[0m` to `Green text`          |
-| Box-drawing characters        | `╭─ header ─╮`, `│ content │`, `╰────────╯`          |
-| Spinner and Braille chars     | `⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏`                                    |
-| Decorative separator lines    | Lines of `---`, `===`, `~~~`, `***`                  |
-| Pipe borders                  | Leading/trailing `│` and `\|` column borders         |
-| Trailing whitespace / padding | Lines padded to a fixed column width with spaces     |
-| Whitespace-only lines         | Blank lines composed entirely of spaces              |
-| Soft-wrapped lines            | Terminal-wrapped lines rejoined into full paragraphs |
-| Excessive blank lines         | 3+ consecutive blank lines collapsed to 2            |
+| Artifact                      | Example                                                                            |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| ANSI escape codes             | `\x1B[32mGreen text\x1B[0m` to `Green text`                                        |
+| Box-drawing characters        | `╭─ header ─╮`, `│ content │`, `╰────────╯`                                        |
+| Spinner and Braille chars     | `⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏`                                                                  |
+| Decorative separator lines    | Lines of `---`, `===`, `~~~`, `***`                                                |
+| Pipe borders                  | Leading/trailing `│`, `\|`, and quote-bar glyphs (`▎` `▍` `█` etc.) column borders |
+| Trailing whitespace / padding | Lines padded to a fixed column width with spaces                                   |
+| Whitespace-only lines         | Blank lines composed entirely of spaces                                            |
+| Soft-wrapped lines            | Terminal-wrapped lines rejoined into full paragraphs                               |
+| Excessive blank lines         | 3+ consecutive blank lines collapsed to 2                                          |
 
 ## What Stays Intact
 
