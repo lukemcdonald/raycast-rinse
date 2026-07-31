@@ -17,8 +17,14 @@ const SENTENCE_END_RE = /[.?!:]$/;
 // List-marker at the start of a line that should NOT be joined onto a previous line
 const LIST_MARKER_RE = /^(\s*[-*>]|\s*\d+\.)\s/;
 
-// Leading/trailing pipe borders (│ and | with optional spaces)
-const LEADING_PIPE_RE = /^\s*[│|]\s*/;
+// Leading quote-bar / pipe border: optional indent, then a single vertical marker glyph —
+// ASCII |, box-drawing │ (already gone by this point via BOX_DRAWING_RE, kept here so the
+// class documents the whole family), or one of the Block Elements bars U+2580–U+259F
+// (▏▎▍▌▋▊▉█▐) Claude emits for quote-style pastes — followed by whitespace or end of line.
+// Requiring \s+/$ instead of \s* stops a run of block chars (e.g. a "████░░░░ 80%" progress
+// bar) from being nibbled at the front: a real quote marker is always alone on its column,
+// never glued to another bar char.
+const LEADING_PIPE_RE = /^\s*[│|▀-▟](?:\s+|$)/;
 const TRAILING_PIPE_RE = /[\s│|]+$/;
 
 // Indented non-list line (signals a code block that should not be joined)

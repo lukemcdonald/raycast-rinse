@@ -12,6 +12,7 @@ import {
   claudeBuildError,
   claudeCodeExplanation,
   claudeProseExplanation,
+  claudeQuoteBarBlock,
   claudeStepByStep,
   claudeTerminalResponse,
   claudeWithMarkdown,
@@ -129,6 +130,58 @@ describe("classifyLines", () => {
   describe("empty lines", () => {
     it("preserves empty lines as text", () => {
       expect(classifyLines([""])).toEqual([{ content: "", kind: "text" }]);
+    });
+  });
+
+  describe("quote-bar prefix stripping", () => {
+    it("strips a Block Elements bar glyph with its indent", () => {
+      const result = classifyLines(["  ▎ content"]);
+      expect(result).toEqual([{ content: "content", kind: "text" }]);
+    });
+
+    it("strips the prefix regardless of indent depth, independent of shared minimum", () => {
+      // Simulates what a mixed paragraph looks like after dedentParagraphs: dedent can't
+      // remove the quote block's indent because an unindented line shares its paragraph,
+      // so classifyLines has to strip whatever indent is actually still there.
+      const result = classifyLines(["  ▎ two-space indent", "    ▎ four-space indent"]);
+      expect(result).toEqual([
+        { content: "two-space indent", kind: "text" },
+        { content: "four-space indent", kind: "text" },
+      ]);
+    });
+
+    it("turns a bar-only line into an empty line rather than dropping it", () => {
+      const result = classifyLines(["  ▎"]);
+      expect(result).toEqual([{ content: "", kind: "text" }]);
+    });
+
+    it("recognizes other glyphs in the Block Elements bar family", () => {
+      const result = classifyLines(["▏ a", "▍ b", "▉ c", "█ d", "▐ e"]);
+      expect(result).toEqual([
+        { content: "a", kind: "text" },
+        { content: "b", kind: "text" },
+        { content: "c", kind: "text" },
+        { content: "d", kind: "text" },
+        { content: "e", kind: "text" },
+      ]);
+    });
+
+    it("does not nibble a progress-bar line where block glyphs repeat with no gap", () => {
+      const result = classifyLines(["████░░░░ 80%"]);
+      expect(result).toEqual([{ content: "████░░░░ 80%", kind: "text" }]);
+    });
+
+    it("does not strip a markdown blockquote marker", () => {
+      const result = classifyLines(["> quoted text"]);
+      expect(result).toEqual([{ content: "> quoted text", kind: "text" }]);
+    });
+
+    it("does not mangle a table row that happens to follow quote-bar lines", () => {
+      const result = classifyLines(["▎ intro", "| A | B |"]);
+      expect(result).toEqual([
+        { content: "intro", kind: "text" },
+        { content: "| A | B |", kind: "table-row" },
+      ]);
     });
   });
 
@@ -396,6 +449,47 @@ describe("cleanText", () => {
     });
   });
 
+  describe("quote-bar blocks", () => {
+    it("strips the indent-and-bar prefix, joins wrapped lines, and turns the bar-only line into a paragraph break", () => {
+      expect(cleanText(claudeQuoteBarBlock)).toBe(
+        "Working the activation deep link (WEB-325 / AND-331). Verifying the assetlinks.json fingerprints is on WEB-325's scope list, and the agent review on the website PR flagged it as still unverified, so passing it your way since I can't check it from my side.\n\nThe website serves these:",
+      );
+    });
+
+    it("handles a quote block sitting in the same paragraph as a table and a fenced code block", () => {
+      // No blank line separates the quote lines from the table rows, so dedentParagraphs
+      // sees them as one paragraph and can't remove the quote block's indent (the table
+      // rows are unindented, pulling the shared minimum to 0). classifyLines has to strip
+      // the leftover "  ▎ " prefix on its own, while leaving the table and fence intact.
+      const input = [
+        "  ▎ Quoted text that wraps across",
+        "  ▎ two lines and joins into one sentence.",
+        "  ▎",
+        "| Name | Value |",
+        "| ---- | ----- |",
+        "| foo  | bar   |",
+        "",
+        "```typescript",
+        "const x = 1;",
+        "```",
+      ].join("\n");
+
+      expect(cleanText(input)).toBe(
+        [
+          "Quoted text that wraps across two lines and joins into one sentence.",
+          "",
+          "| Name | Value |",
+          "| ---- | ----- |",
+          "| foo  | bar   |",
+          "",
+          "```typescript",
+          "const x = 1;",
+          "```",
+        ].join("\n"),
+      );
+    });
+  });
+
   // ─── Idempotency ───────────────────────────────────────────────────────────
 
   describe("idempotency", () => {
@@ -406,6 +500,7 @@ describe("cleanText", () => {
       ["claude code explanation", claudeCodeExplanation],
       ["claude terminal response", claudeTerminalResponse],
       ["claude markdown response", claudeWithMarkdown],
+      ["claude quote-bar block", claudeQuoteBarBlock],
       ["claude build error", claudeBuildError],
     ] as const;
 
@@ -441,6 +536,10 @@ describe("cleanText", () => {
 
     it("claude markdown response with header, inline code, and fenced block", () => {
       expect(cleanText(claudeWithMarkdown)).toMatchSnapshot();
+    });
+
+    it("claude quote-bar block → paste to Slack or notes", () => {
+      expect(cleanText(claudeQuoteBarBlock)).toMatchSnapshot();
     });
 
     it("claude build error with fixed-width padding → paste anywhere", () => {

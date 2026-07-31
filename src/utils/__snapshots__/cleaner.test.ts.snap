@@ -40,6 +40,12 @@ exports[`cleanText > snapshots > claude prose explanation → paste to Slack or 
 Extract the data-fetching into a custom hook instead."
 `;
 
+exports[`cleanText > snapshots > claude quote-bar block → paste to Slack or notes 1`] = `
+"Working the activation deep link (WEB-325 / AND-331). Verifying the assetlinks.json fingerprints is on WEB-325's scope list, and the agent review on the website PR flagged it as still unverified, so passing it your way since I can't check it from my side.
+
+The website serves these:"
+`;
+
 exports[`cleanText > snapshots > claude step-by-step → paste to Jira or Confluence 1`] = `
 "Here is how to migrate. Each step is independent so you can split across PRs if needed.
 

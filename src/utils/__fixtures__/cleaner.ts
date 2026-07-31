@@ -81,6 +81,19 @@ export const claudeWithMarkdown = [
   "Paste this wherever you need it.",
 ].join("\n");
 
+// Claude's copy-pasteable quote-bar block: each line leads with an indent, a Block
+// Elements bar glyph (▎ U+258E here), then a space. Tests: the bar-and-indent prefix
+// is stripped regardless of depth, wrapped lines rejoin into one paragraph, and the
+// bar-only line becomes a real blank line separating it from the next paragraph.
+export const claudeQuoteBarBlock = [
+  "  ▎ Working the activation deep link (WEB-325 / AND-331). Verifying the",
+  "  ▎ assetlinks.json fingerprints is on WEB-325's scope list, and the agent review on",
+  "  ▎ the website PR flagged it as still unverified, so passing it your way since I",
+  "  ▎ can't check it from my side.",
+  "  ▎",
+  "  ▎ The website serves these:",
+].join("\n");
+
 // Real Claude response copied from a terminal — fixed-width column padding.
 // Tests: trailing spaces stripped, all-whitespace lines removed as decoration,
 // indented list items and code commands preserved and not joined.
