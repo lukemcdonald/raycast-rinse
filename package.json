@@ -52,18 +52,21 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.104.23"
+    "@raycast/api": "^2.11.1"
   },
   "devDependencies": {
     "@raycast/eslint-config": "^2.2.0",
-    "@types/node": "22.19.17",
-    "@types/react": "19.0.10",
-    "eslint": "^10.8.0",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "eslint": "^10.14.0",
     "fallow": "^3.40.0",
-    "prettier": "^3.9.6",
+    "prettier": "^3.9.10",
     "skills-npm": "^4.1.0",
-    "typescript": "^5.8.2",
-    "vitest": "^4.1.10"
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=22.22.2"
   },
   "scripts": {
     "audit:code": "fallow audit && fallow health --score --hotspots --summary",
