@@ -8,7 +8,7 @@ export default defineConfig({
   },
   test: {
     clearMocks: true,
-    include: ["src/**/*.test.ts"],
+    include: ["scripts/**/*.test.ts", "src/**/*.test.ts"],
     mockReset: true,
     restoreMocks: true,
   },
