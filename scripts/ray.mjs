@@ -13,35 +13,11 @@
  */
 
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
-import { homedir } from "node:os";
-import { join } from "node:path";
+import { resolveTarget } from "./ray-target.mjs";
 
 const require = createRequire(import.meta.url);
 const rayBin = require.resolve("@raycast/api/bin/run.js");
-
-const BETA_APP = "Raycast Beta.app";
-const STABLE_APP = "Raycast.app";
-
-/** Both apps can live in /Applications or in a per user ~/Applications. */
-function isInstalled(app) {
-  return existsSync(join("/Applications", app)) || existsSync(join(homedir(), "Applications", app));
-}
-
-/** Returns the `-t` value to append, or undefined to leave the CLI on its default target. */
-function resolveTarget() {
-  if (process.env.RAY_TARGET !== undefined) {
-    return process.env.RAY_TARGET || undefined;
-  }
-
-  // Prefer stable whenever it is present so existing setups behave exactly as before.
-  if (process.platform !== "darwin" || isInstalled(STABLE_APP)) {
-    return undefined;
-  }
-
-  return isInstalled(BETA_APP) ? "x" : undefined;
-}
 
 const args = process.argv.slice(2);
 const hasExplicitTarget = args.some((arg) => arg === "-t" || arg === "--target" || arg.startsWith("--target="));

@@ -1,0 +1,5 @@
+{
+  "$schema": "./fallow.schema.json",
+  // Raycast loads each command file from package.json#commands; not imported from app code.
+  "entry": ["src/clean-and-copy.ts", "src/clean-and-paste.ts", "src/clean-and-review.tsx"],
+}
