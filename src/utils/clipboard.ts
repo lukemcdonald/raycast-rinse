@@ -1,8 +1,8 @@
-import { Clipboard } from "@raycast/api";
+import { Clipboard, showHUD } from "@raycast/api";
 import { cleanWithStats, type CleanResult } from "./cleaner";
 
 export type ClipboardCleanResult =
-  { status: "cleaned"; result: CleanResult } | { status: "empty" } | { status: "unchanged"; text: string };
+  { result: CleanResult; status: "cleaned" } | { status: "empty" } | { status: "unchanged"; text: string };
 
 export async function readAndClean(): Promise<ClipboardCleanResult> {
   const { text } = await Clipboard.read();
@@ -17,7 +17,7 @@ export async function readAndClean(): Promise<ClipboardCleanResult> {
     return { status: "unchanged", text };
   }
 
-  return { status: "cleaned", result };
+  return { result, status: "cleaned" };
 }
 
 export const HUD_EMPTY = "Clipboard empty";
@@ -30,4 +30,30 @@ export function buildHudText(reductionPercent: number): string {
   }
 
   return "Rinsed";
+}
+
+type CleanHandlers = {
+  onCleaned: (result: CleanResult) => Promise<void>;
+  onUnchanged?: (text: string) => Promise<void>;
+};
+
+/** Shared empty / unchanged HUD handling for no-view clipboard commands. */
+export async function runClipboardClean(handlers: CleanHandlers): Promise<void> {
+  const outcome = await readAndClean();
+
+  if (outcome.status === "empty") {
+    await showHUD(HUD_EMPTY);
+    return;
+  }
+
+  if (outcome.status === "unchanged") {
+    if (handlers.onUnchanged) {
+      await handlers.onUnchanged(outcome.text);
+    }
+
+    await showHUD(HUD_UNCHANGED);
+    return;
+  }
+
+  await handlers.onCleaned(outcome.result);
 }
